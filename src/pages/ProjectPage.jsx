@@ -1,30 +1,24 @@
-import { useEffect, useState } from 'react'; 
+import { useEffect } from 'react'; 
 import { Table, Tag, Space, Typography, Layout, message } from 'antd';
-import axiosClient from '../api/axiosClient';
+import { useDispatch, useSelector } from 'react-redux'; 
+import { fetchProjects } from '../redux/projectSlice'; 
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
 const ProjectPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch(); 
+  
+  const { list: projects, loading } = useSelector((state) => state.projects);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      setLoading(true);
-      try {
-        const response = await axiosClient.get('/Project');
-        setProjects(response.data);
-      } catch (error) {
-        console.error("Lỗi lấy dự án:", error);
+    dispatch(fetchProjects())
+      .unwrap()
+      .catch((error) => {
+        console.error("Lỗi lấy dự án từ Redux:", error);
         message.error('Không lấy được danh sách dự án!');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []); 
+      });
+  }, [dispatch]);
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
